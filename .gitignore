@@ -162,7 +162,8 @@ cython_debug/
 #.idea/
 
 # Data
-*.csv
+data/*.csv
+data/*.json
 
 # Media
 *.png
