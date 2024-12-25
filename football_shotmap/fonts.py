@@ -11,3 +11,9 @@ class OutfitFont:
     LIGHT = font_manager.FontProperties(fname="./fonts/static/Outfit-Light.ttf", weight=300)
     EXTRA_LIGHT = font_manager.FontProperties(fname="./fonts/static/Outfit-ExtraLight.ttf", weight=200)
     THIN = font_manager.FontProperties(fname="./fonts/static/Outfit-ExtraLight.ttf", weight=100)
+
+
+class Colors:
+    BACKGROUND = "#0c0a09"
+    MAIN = "#e5e7eb"
+    ACCENT = "#c084fc"
