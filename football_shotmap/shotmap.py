@@ -2,12 +2,11 @@
 
 import asyncio
 
-from .scrape import get_shots_data
+from .scrape import get_player_shots_data
 from .fonts import OutfitFont
 
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.font_manager as font_manager
 from mplsoccer import VerticalPitch
 
 
@@ -21,7 +20,7 @@ def get_season_label(year):
 
 
 def get_player_data(player_name, year):
-    return asyncio.run(get_shots_data(player_name, year))
+    return asyncio.run(get_player_shots_data(player_name, year))
 
 
 def prepare_date(data):
@@ -223,14 +222,15 @@ def create_shotmap_fig_form_data(player_name, year, data):
 
     ax2.set_axis_off()
 
-    # add another axis for the stats
+    # TODO: Fix layout
+    # Add another axis for the stats
     ax3 = fig.add_axes([0, .2, 1, .05])
     ax3.set_facecolor(BACKGROUND_COLOR)
     ax3.set_xlim(0, 1)
     ax3.set_ylim(0, 1)
 
     ax3.text(
-        x=0.25,
+        x=0.2,
         y=.5,
         s='Shots',
         fontsize=20,
@@ -240,7 +240,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
     )
 
     ax3.text(
-        x=0.25,
+        x=0.2,
         y=0,
         s=f'{stats["total_shots"]}',
         fontsize=16,
@@ -250,7 +250,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
     )
 
     ax3.text(
-        x=0.38,
+        x=0.4,
         y=.5,
         s='Goals',
         fontsize=20,
@@ -260,7 +260,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
     )
 
     ax3.text(
-        x=0.38,
+        x=0.4,
         y=0,
         s=f'{stats["total_goals"]}',
         fontsize=16,
@@ -270,7 +270,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
     )
 
     ax3.text(
-        x=0.53,
+        x=0.6,
         y=.5,
         s='xG',
         fontsize=20,
@@ -280,7 +280,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
     )
 
     ax3.text(
-        x=0.53,
+        x=0.6,
         y=0,
         s=f'{stats["total_xG"]:.2f}',
         fontsize=16,
@@ -290,7 +290,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
     )
 
     ax3.text(
-        x=0.73,
+        x=0.8,
         y=.5,
         s='xG/Shot',
         fontsize=20,
@@ -300,7 +300,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
     )
 
     ax3.text(
-        x=0.73,
+        x=0.8,
         y=0,
         s=f'{stats["xG_per_shot"]:.2f}',
         fontsize=16,
@@ -329,7 +329,7 @@ def create_shotmap(player_name, year):
 
 if __name__ == "__main__":
     player_name = "Mohamed Salah"
-    year = "2023"
+    year = "2024"
 
     file_name = create_shotmap(player_name, year)
     print(f"Shotmap created at: '{file_name}'.")
