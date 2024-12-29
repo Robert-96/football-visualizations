@@ -212,8 +212,8 @@ async def generate_match_shots(home_team, away_team, year):
     file_name = f"./data/{normalized_match_name}_{year}_shots_understat.json"
 
     data = await get_match_shots(home_team, away_team, year)
-    df = pd.json_normalize(data)
-    df.to_csv(file_name, index=False)
+    with open(file_name, 'w') as fp:
+        json.dump(data, fp, indent=2)
 
     return file_name
 
