@@ -44,6 +44,14 @@ async def get_math_id(understat, home_team, away_team, year="2024"):
     raise ValueError(f"Fixture not found for {home_team} vs {away_team}.")
 
 
+async def get_teams(league, year="2024"):
+    async with aiohttp.ClientSession() as session:
+        understat = Understat(session)
+
+        season = str(year)
+        return await understat.get_teams(league, season=season)
+
+
 async def get_league_fixtures(year="2024"):
     async with aiohttp.ClientSession() as session:
         understat = Understat(session)
@@ -142,6 +150,16 @@ async def get_team_stats(team_name, year):
         return team_stats
 
 
+async def generate_teams(league=LEAGUES.EPL, year="2024"):
+    file_name = f"./data/{league.lower()}_teams_{year}_understat.json"
+
+    data = await get_teams(league, year)
+    with open(file_name, 'w') as fp:
+        json.dump(data, fp, indent=2)
+
+    return file_name
+
+
 async def generate_league_fixtures(year):
     file_name = f"./data/{LEAGUES.PREMIER_LEAGUE.lower()}_{year}_fixtures_understat.csv"
 
@@ -236,6 +254,7 @@ if __name__ == "__main__":
     home_team = "Liverpool"
     away_team = "Everton"
 
+    asyncio.run(generate_teams(LEAGUES.EPL, year))
     asyncio.run(generate_player_shot_data(player_name, year))
     asyncio.run(generate_player_data(player_name, year))
     asyncio.run(generate_player_group_data(player_name, year))
