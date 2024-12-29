@@ -1,4 +1,4 @@
-"""This module scrapes shot data from Understat to fetch and save data related to players, teams, and matches."""
+"""This module scrapes Understat to fetch and save data related to players, teams, and matches."""
 
 import json
 import asyncio
