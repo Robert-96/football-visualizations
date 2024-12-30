@@ -2,8 +2,8 @@
 
 import asyncio
 
-from .scrape import get_player_shots_data
-from .fonts import OutfitFont
+from .scrape import get_player_shots_data, get_match_shots
+from .style import OutfitFont, Colors
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -26,6 +26,10 @@ def get_season_label(year):
 
 def get_player_data(player_name, year):
     return asyncio.run(get_player_shots_data(player_name, year))
+
+
+def get_match_data(home_team, away_team, year):
+    return asyncio.run(get_match_shots(home_team, away_team, year))
 
 
 def prepare_date(data):
@@ -59,7 +63,7 @@ def calculate_stats(df):
     }
 
 
-def create_shotmap_fig_form_data(player_name, year, data):
+def create_shotmap_fig_form_data(title, subtitle, data):
     df = prepare_date(data)
     stats = calculate_stats(df)
 
@@ -67,9 +71,9 @@ def create_shotmap_fig_form_data(player_name, year, data):
         pitch_type='opta',
         half=True,
         corner_arcs=True,
-        pitch_color=BACKGROUND_COLOR,
+        pitch_color=Colors.BACKGROUND,
         pad_bottom=0.25,
-        line_color=MAIN_COLOR,
+        line_color=Colors.MAIN,
         linewidth=1,
         axis=True,
         label=True
@@ -77,31 +81,31 @@ def create_shotmap_fig_form_data(player_name, year, data):
 
     # Create a subplot with 2 rows and 1 column
     fig = plt.figure(figsize=(8, 12))
-    fig.patch.set_facecolor(BACKGROUND_COLOR)
+    fig.patch.set_facecolor(Colors.BACKGROUND)
 
     # Top row for the team names and score
     # [left, bottom, width, height]
     ax1 = fig.add_axes([0, 0.7, 1, .2])
-    ax1.set_facecolor(BACKGROUND_COLOR)
+    ax1.set_facecolor(Colors.BACKGROUND)
     ax1.set_xlim(0, 1)
     ax1.set_ylim(0, 1)
 
     ax1.text(
         x=0.5,
         y=0.8,
-        s=player_name,
+        s=title,
         fontsize=24,
         fontproperties=OutfitFont.BLACK,
-        color=MAIN_COLOR,
+        color=Colors.MAIN,
         ha='center'
     )
     ax1.text(
         x=0.5,
         y=.65,
-        s=f'All shots in the Premier League {get_season_label(year)}',
+        s=subtitle,
         fontsize=14,
         fontproperties=OutfitFont.BOLD,
-        color=MAIN_COLOR,
+        color=Colors.MAIN,
         ha='center'
     )
 
@@ -111,7 +115,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
         s=f'Low Quality Chance',
         fontsize=12,
         fontproperties=OutfitFont.BOLD,
-        color=MAIN_COLOR,
+        color=Colors.MAIN,
         ha='center'
     )
 
@@ -128,8 +132,8 @@ def create_shotmap_fig_form_data(player_name, year, data):
             x=point["x"],
             y=point["y"],
             s=point["s"],
-            color=BACKGROUND_COLOR,
-            edgecolor=MAIN_COLOR,
+            color=Colors.BACKGROUND,
+            edgecolor=Colors.MAIN,
             linewidth=.8
         )
 
@@ -139,7 +143,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
         s=f'High Quality Chance',
         fontsize=12,
         fontproperties=OutfitFont.BOLD,
-        color=MAIN_COLOR,
+        color=Colors.MAIN,
         ha='center'
     )
 
@@ -149,15 +153,15 @@ def create_shotmap_fig_form_data(player_name, year, data):
         s=f'Goal',
         fontsize=10,
         fontproperties=OutfitFont.BOLD,
-        color=MAIN_COLOR,
+        color=Colors.MAIN,
         ha='right'
     )
     ax1.scatter(
         x=0.47,
         y=0.26,
         s=100,
-        color=ACCENT_COLOR,
-        edgecolor=MAIN_COLOR,
+        color=Colors.ACCENT,
+        edgecolor=Colors.MAIN,
         linewidth=.8,
         alpha=.7
     )
@@ -166,8 +170,8 @@ def create_shotmap_fig_form_data(player_name, year, data):
         x=0.53,
         y=0.26,
         s=100,
-        color=BACKGROUND_COLOR,
-        edgecolor=MAIN_COLOR,
+        color=Colors.BACKGROUND,
+        edgecolor=Colors.MAIN,
         linewidth=.8
     )
     ax1.text(
@@ -176,13 +180,13 @@ def create_shotmap_fig_form_data(player_name, year, data):
         s=f'No Goal',
         fontsize=10,
         fontproperties=OutfitFont.BOLD,
-        color=MAIN_COLOR,
+        color=Colors.MAIN,
         ha='left'
     )
     ax1.set_axis_off()
 
     ax2 = fig.add_axes([.05, 0.25, .9, .5])
-    ax2.set_facecolor(BACKGROUND_COLOR)
+    ax2.set_facecolor(Colors.BACKGROUND)
     pitch.draw(ax=ax2)
 
     # Create a scatter plot at y 100 - average_distance
@@ -190,7 +194,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
         x=90,
         y=stats['points_average_distance'],
         s=100,
-        color=MAIN_COLOR,
+        color=Colors.MAIN,
         linewidth=.8
     )
 
@@ -198,7 +202,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
     ax2.plot(
         [90, 90],
         [100, stats['points_average_distance']],
-        color=MAIN_COLOR,
+        color=Colors.MAIN,
         linewidth=1
     )
 
@@ -209,7 +213,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
         s=f"Average Distance\n{stats["actual_average_distance"]:.1f} meters",
         fontsize=10,
         fontproperties=OutfitFont.BOLD,
-        color=MAIN_COLOR,
+        color=Colors.MAIN,
         ha='center'
     )
 
@@ -218,11 +222,11 @@ def create_shotmap_fig_form_data(player_name, year, data):
             x['X'],
             x['Y'],
             s=300 * x['xG'],
-            color=ACCENT_COLOR if x['result'] == 'Goal' else BACKGROUND_COLOR,
+            color=Colors.ACCENT if x['result'] == 'Goal' else Colors.BACKGROUND,
             ax=ax2,
             alpha=.7,
             linewidth=.8,
-            edgecolor=MAIN_COLOR
+            edgecolor=Colors.MAIN
         )
 
     ax2.set_axis_off()
@@ -230,7 +234,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
     # TODO: Fix layout
     # Add another axis for the stats
     ax3 = fig.add_axes([0, .2, 1, .05])
-    ax3.set_facecolor(BACKGROUND_COLOR)
+    ax3.set_facecolor(Colors.BACKGROUND)
     ax3.set_xlim(0, 1)
     ax3.set_ylim(0, 1)
 
@@ -240,7 +244,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
         s='Shots',
         fontsize=20,
         fontproperties=OutfitFont.BOLD,
-        color=MAIN_COLOR,
+        color=Colors.MAIN,
         ha='center'
     )
 
@@ -250,7 +254,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
         s=f'{stats["total_shots"]}',
         fontsize=16,
         fontproperties=OutfitFont.BOLD,
-        color=ACCENT_COLOR,
+        color=Colors.ACCENT,
         ha='center'
     )
 
@@ -260,7 +264,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
         s='Goals',
         fontsize=20,
         fontproperties=OutfitFont.BOLD,
-        color=MAIN_COLOR,
+        color=Colors.MAIN,
         ha='center'
     )
 
@@ -270,7 +274,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
         s=f'{stats["total_goals"]}',
         fontsize=16,
         fontproperties=OutfitFont.BOLD,
-        color=ACCENT_COLOR,
+        color=Colors.ACCENT,
         ha='center'
     )
 
@@ -280,7 +284,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
         s='xG',
         fontsize=20,
         fontproperties=OutfitFont.BOLD,
-        color=MAIN_COLOR,
+        color=Colors.MAIN,
         ha='center'
     )
 
@@ -290,7 +294,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
         s=f'{stats["total_xG"]:.2f}',
         fontsize=16,
         fontproperties=OutfitFont.BOLD,
-        color=ACCENT_COLOR,
+        color=Colors.ACCENT,
         ha='center'
     )
 
@@ -300,7 +304,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
         s='xG/Shot',
         fontsize=20,
         fontproperties=OutfitFont.BOLD,
-        color=MAIN_COLOR,
+        color=Colors.MAIN,
         ha='center'
     )
 
@@ -310,7 +314,7 @@ def create_shotmap_fig_form_data(player_name, year, data):
         s=f'{stats["xG_per_shot"]:.2f}',
         fontsize=16,
         fontproperties=OutfitFont.BOLD,
-        color=ACCENT_COLOR,
+        color=Colors.ACCENT,
         ha='center'
     )
 
@@ -319,22 +323,51 @@ def create_shotmap_fig_form_data(player_name, year, data):
     return fig
 
 
-def create_shotmap_fig(player_name, year):
+def create_player_shotmap_fig(player_name, year):
     data = get_player_data(player_name, year)
-    return create_shotmap_fig_form_data(player_name, year, data)
+
+    title = player_name
+    subtitle = f'All shots in the Premier League {get_season_label(year)}'
+
+    return create_shotmap_fig_form_data(title, subtitle, data)
 
 
-def create_shotmap(player_name, year):
+def create_team_shotmap_fig(home_team, away_team, year):
+    data = get_match_data(home_team, away_team, year)
+    data = data['h']
+
+    title = home_team
+    subtitle = f'All shots for {home_team} in the {home_team} vs {away_team} {get_season_label(year)}'
+
+    return create_shotmap_fig_form_data(title, subtitle, data)
+
+
+def create_player_shotmap(player_name, year):
     file_name = f"./media/{player_name.lower().replace(" ", "_")}_{year}.png"
 
-    fig = create_shotmap_fig(player_name, year)
-    fig.savefig(file_name, facecolor=BACKGROUND_COLOR, bbox_inches="tight")
+    fig = create_player_shotmap_fig(player_name, year)
+    fig.savefig(file_name, facecolor=Colors.BACKGROUND, bbox_inches="tight")
+    return file_name
+
+
+def create_team_shotmap(home_team, away_team, year):
+    normalized_match_name = f"{home_team}_{away_team}".replace(" ", "_").lower()
+    file_name = f"./media/{normalized_match_name}_{year}.png"
+
+    fig = create_team_shotmap_fig(home_team, away_team, year)
+    fig.savefig(file_name, facecolor=Colors.BACKGROUND, bbox_inches="tight")
     return file_name
 
 
 if __name__ == "__main__":
     player_name = "Mohamed Salah"
-    year = "2024"
+    year = "2023"
 
-    file_name = create_shotmap(player_name, year)
+    home_team = "Liverpool"
+    away_team = "Everton"
+
+    file_name = create_player_shotmap(player_name, year)
+    print(f"Shotmap created at: '{file_name}'.")
+
+    file_name = create_team_shotmap(home_team, away_team, year)
     print(f"Shotmap created at: '{file_name}'.")
