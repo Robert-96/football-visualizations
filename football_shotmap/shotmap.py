@@ -1,4 +1,4 @@
-"""Generate shotmap."""
+"""This module generates shotmaps for football matches and players."""
 
 import asyncio
 
