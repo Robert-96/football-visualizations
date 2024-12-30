@@ -10,13 +10,18 @@ import matplotlib.pyplot as plt
 from mplsoccer import VerticalPitch
 
 
-BACKGROUND_COLOR = "#0c0a09"
-ACCENT_COLOR = "#c084fc"
-MAIN_COLOR = "#e5e7eb"
-
-
 def get_season_label(year):
-    return f"{year}/{int(year) % 100 + 1}" # Create a string of the form 2023/24.
+    """
+    Generate a season label string in the format "YYYY/YY".
+
+    Args:
+        year (int): The starting year of the season.
+
+    Returns:
+        str: A string representing the season in the format "YYYY/YY".
+    """
+
+    return f"{year}/{int(year) % 100 + 1}"
 
 
 def get_player_data(player_name, year):
