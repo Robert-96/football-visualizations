@@ -14,6 +14,7 @@ class OutfitFont:
 
 
 class Colors:
+    PURPLES = ["#9333ea", "#7e22ce", "#6b21a8", "#581c87", "#3b0764"]
     BACKGROUND = "#0c0a09"
     MAIN = "#e5e7eb"
     ACCENT = "#c084fc"

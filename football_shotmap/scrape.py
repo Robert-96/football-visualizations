@@ -121,7 +121,7 @@ async def get_player_matches(player_name, year):
         return player_shots
 
 
-async def get_match_data(home_team, away_team, year):
+async def get_match_stats(home_team, away_team, year):
     async with aiohttp.ClientSession() as session:
         understat = Understat(session)
 
@@ -147,6 +147,15 @@ async def get_team_stats(team_name, year):
 
         season = str(year)
         team_stats = await understat.get_team_stats(team_name, season=season)
+        return team_stats
+
+
+async def get_teams_players(team_name, year):
+    async with aiohttp.ClientSession() as session:
+        understat = Understat(session)
+
+        season = str(year)
+        team_stats = await understat.get_team_players(team_name, season=season)
         return team_stats
 
 
@@ -214,11 +223,11 @@ async def generate_player_matches(player_name, year):
     return file_name
 
 
-async def generate_match_data(home_team, away_team, year):
+async def generate_match_stats(home_team, away_team, year):
     normalized_match_name = f"{home_team}_{away_team}".replace(" ", "_").lower()
-    file_name = f"./data/{normalized_match_name}_{year}_understat.json"
+    file_name = f"./data/{normalized_match_name}_{year}_stats_understat.json"
 
-    data = await get_match_data(home_team, away_team, year)
+    data = await get_match_stats(home_team, away_team, year)
     with open(file_name, 'w') as fp:
         json.dump(data, fp, indent=2)
 
@@ -247,6 +256,17 @@ async def generate_team_stats(team_name, year):
     return file_name
 
 
+async def generate_teams_players(team_name, year):
+    normalized_team_name = team_name.replace(" ", "_").lower()
+    file_name = f"./data/{normalized_team_name}_{year}_players_understat.json"
+
+    data = await get_teams_players(team_name, year)
+    with open(file_name, 'w') as fp:
+        json.dump(data, fp, indent=2)
+
+    return file_name
+
+
 if __name__ == "__main__":
     player_name = "Diogo Jota"
     year = "2023"
@@ -260,6 +280,7 @@ if __name__ == "__main__":
     asyncio.run(generate_player_group_data(player_name, year))
     asyncio.run(generate_player_matches(player_name, year))
     asyncio.run(generate_league_fixtures(year))
-    asyncio.run(generate_match_data(home_team, away_team, year))
+    asyncio.run(generate_match_stats(home_team, away_team, year))
     asyncio.run(generate_match_shots(home_team, away_team, year))
     asyncio.run(generate_team_stats(home_team, year))
+    asyncio.run(generate_teams_players(home_team, year))
