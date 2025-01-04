@@ -172,13 +172,3 @@ if __name__ == "__main__":
     year = "2024"
 
     create_player_shotzone(player_name, year)
-
-    team = "Liverpool"
-    players = asyncio.run(get_teams_players(team, year))
-
-    from .shotmap import create_player_shotmap
-    for player in players:
-        print(player["player_name"], player["position"])
-
-        if "F" in player["position"] or "S" in player["position"]:
-            create_player_shotmap(player["player_name"], year)
