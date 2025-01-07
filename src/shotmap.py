@@ -6,12 +6,11 @@ from .utils import prepare_shot_data, calculate_shots_stats, get_season_label
 from .scrape import get_player_shots_data, get_match_shots, get_match_stats
 from .style import OutfitFont, Colors
 
-import pandas as pd
 import matplotlib.pyplot as plt
 from mplsoccer import Pitch, VerticalPitch
 
 
-def add_title_section(ax, title, subtitle):
+def add_header_section(ax, title, subtitle):
     ax.text(x=0.5, y=0.8, s=title, fontsize=24, fontproperties=OutfitFont.BLACK, color=Colors.MAIN, ha="center")
     ax.text(x=0.5, y=0.65, s=subtitle, fontsize=14, fontproperties=OutfitFont.BOLD, color=Colors.MAIN, ha="center")
 
@@ -57,7 +56,7 @@ def create_shotmap_fig_form_data(data, title="Shotmap", subtitle="All shots"):
     ax1.set_facecolor(Colors.BACKGROUND)
     ax1.set_xlim(0, 1)
     ax1.set_ylim(0, 1)
-    add_title_section(ax1, title, subtitle)
+    add_header_section(ax1, title, subtitle)
     ax1.set_axis_off()
 
     ax2 = fig.add_axes([.05, 0.25, 0.9, .5])
@@ -125,7 +124,7 @@ def create_match_shotmap_fig_from_data(data, title="Shotmap", subtitle="All shot
     ax1.set_facecolor(Colors.BACKGROUND)
     ax1.set_xlim(0, 1)
     ax1.set_ylim(0, 1)
-    add_title_section(ax1, title, subtitle)
+    add_header_section(ax1, title, subtitle)
     ax1.set_axis_off()
 
     ax2 = fig.add_axes([.05, 0.285, .9, .5])
@@ -179,7 +178,7 @@ def create_player_shotmap_fig(player_name, year):
     data = asyncio.run(get_player_shots_data(player_name, year))
 
     title = player_name
-    subtitle = f'All shots in the Premier League {get_season_label(year)}'
+    subtitle = f'All shots in Premier League in {get_season_label(year)}'
 
     return create_shotmap_fig_form_data(data, title=title, subtitle=subtitle)
 
@@ -189,7 +188,7 @@ def create_match_shotmap_fig(home_team, away_team, year):
     result = asyncio.run(get_match_stats(home_team, away_team, year))
 
     title = f"{home_team} {result["h_goals"]} - {result["a_goals"]} {away_team}"
-    subtitle = f'All shots in the {home_team} - {away_team} fixture {get_season_label(year)}'
+    subtitle = f'All shots in {home_team} - {away_team} fixture in {get_season_label(year)}'
 
     return create_match_shotmap_fig_from_data(data, title=title, subtitle=subtitle)
 
