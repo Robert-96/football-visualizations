@@ -1,3 +1,5 @@
+from .style import OutfitFont, Colors
+
 import pandas as pd
 
 
@@ -83,3 +85,37 @@ def calculate_shots_stats(df):
         'points_average_distance': points_average_distance,
         'actual_average_distance': actual_average_distance
     }
+
+
+def add_title(ax, title, x=0.5, y=0.8, font=OutfitFont.BLACK, fontsize=24, color=Colors.MAIN):
+    """Add a title to a matplotlib axis.
+
+    Args:
+        ax (matplotlib.axes.Axes): The axis to add the title to.
+        title (str): The title to add to the axis.
+        x (float, optional): The x coordinate for title positioning. Defaults to 0.5.
+        y (float, optional): The y coordinate for title positioning. Defaults to 0.8.
+        font (OutfitFont, optional): The font to use for the title. Defaults to OutfitFont.BLACK.
+        fontsize (int, optional): The size of the font. Defaults to 24.
+        color (Colors, optional): The color of the title text. Defaults to Colors.MAIN.
+
+    """
+
+    ax.text(x=x, y=y, s=title, fontproperties=font, fontsize=fontsize, color=color, ha="center", va="center")
+
+
+def add_subtitle(ax, subtitle, x=0.5, y=0.5, font=OutfitFont.REGULAR, fontsize=16, color=Colors.MAIN):
+    """Add a subtitle to a matplotlib axis.
+
+    Args:
+        ax (matplotlib.axes.Axes): The axis to add the subtitle to.
+        subtitle (str): The subtitle to add to the axis.
+        x (float, optional): The x coordinate for subtitle positioning. Defaults to 0.5.
+        y (float, optional): The y coordinate for subtitle positioning. Defaults to 0.5.
+        font (OutfitFont, optional): The font to use for the subtitle. Defaults to OutfitFont.REGULAR.
+        fontsize (int, optional): The size of the font. Defaults to 16.
+        color (Colors, optional): The color of the subtitle text. Defaults to Colors.MAIN.
+
+    """
+
+    ax.text(x=x, y=y, s=subtitle, fontproperties=font, fontsize=fontsize, color=color, ha="center", va="center")
