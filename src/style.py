@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import matplotlib.font_manager as font_manager
+from matplotlib.colors import LinearSegmentedColormap
 
 FONT_BASE_PATH = Path("./fonts/static")
 
@@ -18,7 +19,9 @@ class OutfitFont:
 
 
 class Colors:
-    PURPLES = ["#9333ea", "#7e22ce", "#6b21a8", "#581c87", "#3b0764"]
     BACKGROUND = "#0c0a09"
     MAIN = "#e5e7eb"
     ACCENT = "#c084fc"
+
+
+PURPLE_COLORMAP = LinearSegmentedColormap.from_list('purple_colormap', ["#c084fc", "#a855f7", "#9333ea", "#7e22ce", "#6b21a8", "#581c87", "#3b0764"])

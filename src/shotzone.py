@@ -1,87 +1,36 @@
 """This module generates shotzones for football matches and players."""
 
 import asyncio
-import copy
 
 from .utils import prepare_shot_data, calculate_shots_stats, get_season_label
-from .scrape import get_player_shots_data, get_teams_players
-from .style import OutfitFont, Colors
+from .scrape import get_player_shots_data
+from .style import OutfitFont, Colors, PURPLE_COLORMAP
+from .zones import Zones, draw_zone_fill, draw_zones
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from mplsoccer import VerticalPitch
 
 
-def is_inside_zone(x, y, zone):
-    """Checks if a point is inside a zone."""
-
-    return zone["x"] - zone["width"] < x <= zone["x"] and zone["y"] - zone["height"] < y <= zone["y"]
-
-
 def calculate_zones_stats(df, zones, vertical=True):
     """Calculates the stats for each zone."""
 
-    stats = copy.deepcopy(zones)
-    for stat in stats:
-        stat["shots"] = 0
-        stat["xG"] = 0
+    for zone in zones:
+        zone.values["shots"] = 0
+        zone.values["xG"] = 0
 
     for shot in df.to_dict(orient="records"):
-        if vertical:
-            x, y = shot["Y"], shot["X"]
-        else:
-            x, y = shot["X"], shot["Y"]
+        x, y = shot["X"], shot["Y"]
 
-        for zone in stats:
-            if is_inside_zone(x, y, zone):
-                zone["shots"] += 1
-                zone["xG"] += shot["xG"]
+        for zone in zones:
+            if zone.is_inside(x, y, vertical):
+                zone.values["shots"] += 1
+                zone.values["xG"] += shot["xG"]
                 break
 
-    return stats
-
-
-def draw_zone(ax, zone, color, text):
-    """Draws a zone on the pitch."""
-
-    # Set zorder to 0 to draw the rectangle behind the pitch
-    # TODO: Fix the zone x, y coordinates to be the opposite corner of the rectangle, so we don't need to subtract the width and height
-    rect = Rectangle((zone["x"] - zone["width"], zone["y"] - zone["height"]), zone["width"], zone["height"], facecolor=color, linewidth=0, alpha=0.5, zorder=0)
-
-    ax.add_patch(rect)
-    ax.annotate(f"{text}", (0.5, 0.5), xycoords=rect, color=Colors.MAIN, fontsize=12, fontproperties=OutfitFont.BOLD, ha="center", va="center")
-
-
-def draw_zone_borders(ax, zone):
-    draw = zone.get("draw")
-    if not draw:
-        return
-
-    lines = []
-
-    if "top" in draw:
-        lines.append([(zone["x"], zone["y"]), (zone["x"] - zone["width"], zone["y"])])
-
-    if "bottom" in draw:
-        lines.append([(zone["x"], zone["y"] - zone["height"]), (zone["x"] - zone["width"], zone["y"] - zone["height"])])
-
-    if "left" in draw:
-        lines.append([(zone["x"], zone["y"]), (zone["x"], zone["y"] - zone["height"])])
-
-    if "right" in draw:
-        lines.append([(zone["x"] - zone["width"], zone["y"]), (zone["x"] - zone["width"], zone["y"] - zone["height"])])
-
-    for line in lines:
-        ax.plot([line[0][0], line[1][0]], [line[0][1], line[1][1]], color=Colors.ACCENT, linewidth=2, linestyle="dashed")
-
-
-def draw_zones(ax, zones, total):
-    for index, zone in enumerate(sorted(zones, key=lambda x: x["shots"], reverse=True)):
-        if zone["shots"] > 0:
-            average_shots = zone["shots"] * 100 / total
-            draw_zone(ax, zone, Colors.PURPLES[index], f"{average_shots:.2f}%\n{zone["xG"]:.2f} xG")
-
-        draw_zone_borders(ax, zone)
+    total_shots = df.shape[0]
+    for zone in zones:
+        zone.values["percentage"] = zone.values["shots"] * 100 / total_shots
 
 
 def create_shotzone_fig_from_data(data, title="Title", subtitle="Subtitle"):
@@ -113,21 +62,15 @@ def create_shotzone_fig_from_data(data, title="Title", subtitle="Subtitle"):
     )
     pitch.draw(ax=ax2)
 
-    zones = [
-        {"x": 100, "y": 100, "width": 21, "height": 17, "draw": ["bottom"]},
-        {"x": 79, "y": 100, "width": 15.8, "height": 17, "draw": []},
-        {"x": 63.2, "y": 100, "width": 26.4, "height": 5.8, "draw": []},
-        {"x": 63.2, "y": 94.2, "width": 26.4, "height": 11.2, "draw": ["left", "right"]},
-        {"x": 36.8, "y": 100, "width": 15.8, "height": 17, "draw": []},
-        {"x": 21, "y": 100, "width": 21, "height": 17, "draw": ["bottom"]},
-        {"x": 100, "y": 83, "width": 21, "height": 33, "draw": ["right"]},
-        {"x": 79, "y": 83, "width": 58, "height": 11, "draw": ["bottom"]},
-        {"x": 79, "y": 72, "width": 58, "height": 22, "draw": []},
-        {"x": 21, "y": 83, "width": 21, "height": 33, "draw": ["left"]},
-    ]
+    zones = Zones()
+    calculate_zones_stats(df, zones, pitch.vertical)
+    draw_zones(pitch, ax2, zones)
 
-    zone_stats = calculate_zones_stats(df, zones)
-    draw_zones(ax2, zone_stats, df.shape[0])
+    zones_to_draw = list(filter(lambda zone: zone.values["shots"] > 0, sorted(zones, key=lambda zone: zone.values["shots"], reverse=True)))
+    for index, zone in enumerate(zones_to_draw):
+        if zone.values["shots"] > 0:
+            draw_zone_fill(pitch, ax2, zone, text=f"{zone.values["percentage"]:.2f}%\n{zone.values["xG"]:.2f}xG", color=PURPLE_COLORMAP((index + 1) / len(zones_to_draw)))
+
     ax2.set_axis_off()
 
     ax3 = fig.add_axes([0, .2, 1, .05])
